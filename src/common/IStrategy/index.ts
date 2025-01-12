@@ -1,0 +1,1 @@
+export { IStrategy } from "./IStrategy";

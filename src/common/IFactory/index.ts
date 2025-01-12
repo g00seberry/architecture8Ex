@@ -1,0 +1,1 @@
+export { IFactory } from "./IFactory";
