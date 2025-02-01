@@ -1,21 +1,43 @@
 import express, { Request, Response } from "express";
 import { ICommand } from "../../common/ICommand";
 import { IoCResolveServer } from "../bootIoC4Server";
+import axios from "axios";
 
 export class CommandServerRestInit implements ICommand {
   execute() {
     const app = express();
     app.use(express.json());
     const port = process.env.PORT || 3000;
-    app.post("/game/:id/auth", async (req: Request, res: Response) => {
+
+    app.post("/game/:id/sign-up", async (req: Request, res: Response) => {
       try {
         const { gId, login, pass } = req.body;
-        console.log(gId, login, pass);
-        res.json(true);
+        const user = await axios.post(
+          "http://localhost:5000/api/auth/sign-up",
+          {
+            email: `${login}.${gId}`,
+            password: pass,
+          }
+        );
+        res.json(user.data);
       } catch (error) {
         res.status(500).json(error);
       }
     });
+
+    app.post("/game/:id/login", async (req: Request, res: Response) => {
+      try {
+        const { gId, login, pass } = req.body;
+        const user = await axios.post("http://localhost:5000/api/auth/login", {
+          email: `${login}.${gId}`,
+          password: pass,
+        });
+        res.json(user.data);
+      } catch (error) {
+        res.status(500).json(error);
+      }
+    });
+
     app.post("/game/:id/run", async (req: Request, res: Response) => {
       try {
         const gId = req.params.id;

@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { days2Ms } from "../common/days2Ms";
 import { getAuthService } from "../service/AuthService";
 import { ApiError } from "../ApiError/ApiError";
+import { getTokenService } from "../service/TokenService/TokenService";
+import { getTokensKeyPair } from "../config";
 
 const authService = getAuthService();
 
@@ -11,10 +13,6 @@ export class AuthController {
       const { password, email } = req.body;
       if (!password || !email) throw ApiError.BadRequest("incorrect data");
       const userData = await authService.signUp(password, email);
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: days2Ms(30),
-        httpOnly: true,
-      });
       return res.status(200).json(userData);
     } catch (error) {
       next(error);
@@ -26,7 +24,7 @@ export class AuthController {
       const { password, email } = req.body;
       if (!password || !email) throw ApiError.BadRequest("incorrect data");
       const userData = await authService.login(password, email);
-      res.cookie("refreshToken", userData.refreshToken, {
+      res.cookie("accessToken", userData.accessToken, {
         maxAge: days2Ms(30),
         httpOnly: true,
       });
@@ -36,28 +34,51 @@ export class AuthController {
     }
   }
 
-  async logout(req: Request, res: Response, next: NextFunction) {
+  async logout(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
-      const { refreshToken } = req.cookies;
-      if (!refreshToken) throw ApiError.BadRequest("incorrect data");
-      const removedToken = authService.logout(refreshToken);
-      res.clearCookie("refreshToken");
-      return res.status(200).json(removedToken);
+      const { accessToken } = req.cookies;
+      if (!accessToken) throw ApiError.BadRequest("incorrect data");
+      await authService.logout(accessToken);
+      res.clearCookie("accessToken");
+      console.log(1);
+      return res.status(200).json(true);
     } catch (error) {
       next(error);
     }
   }
 
-  async refreshToken(req: Request, res: Response, next: NextFunction) {
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
     try {
-      const { refreshToken } = req.cookies;
+      const { refreshToken } = req.body;
       if (!refreshToken) throw ApiError.BadRequest("incorrect data");
       const userData = await authService.refreshToken(refreshToken);
-      res.cookie("refreshToken", userData.refreshToken, {
+      res.cookie("accessToken", userData.accessToken, {
         maxAge: days2Ms(30),
         httpOnly: true,
       });
       return res.status(200).json(userData);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async autorize(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const { accessToken } = req.cookies;
+      const tokenService = await getTokenService();
+      const valid = await tokenService.validateToken(
+        accessToken,
+        getTokensKeyPair().accessTokenKey
+      );
+      return res.status(200).json(valid);
     } catch (error) {
       next(error);
     }

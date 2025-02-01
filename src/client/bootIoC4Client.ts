@@ -8,6 +8,7 @@ import { entityMove } from "./api/entity";
 import { runGame, sendMessage2Game } from "./api/game";
 import { GameAuthInfo } from "./api/types";
 import { CommandAuthInGame } from "./commands/CommandAuthInGame";
+import { CommandSignUpInGame } from "./commands/CommandsignUpInGame";
 import { createConnectionWithServer } from "./createConnectionWithServer";
 
 export const IoCResolveClient = <T>(
@@ -19,6 +20,14 @@ export const bootIoC4Client = () => {
     new IoCScopeTreeContainer(new IoCDependencyContainer(), "root"),
     new IoCResolveStrategyStd()
   ).execute();
+
+  IoCResolveClient("register")("game.sign-up", (data: GameAuthInfo) =>
+    new CommandSignUpInGame(data).execute()
+  );
+
+  IoCResolveClient("register")("game.auth", (data: GameAuthInfo) =>
+    new CommandAuthInGame(data).execute()
+  );
 
   IoCResolveClient("register")("game.auth", (data: GameAuthInfo) =>
     new CommandAuthInGame(data).execute()

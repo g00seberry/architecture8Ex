@@ -1,25 +1,22 @@
 import { ApiError } from "../ApiError/ApiError";
 import { getApiErrorMessage } from "../ApiError/getApiErrorMessage";
 import { compareHash } from "../common/hashString";
-import { config } from "../config";
+import { config, getTokensKeyPair } from "../config";
 import { UserAuthResponse } from "../types/UserAuthResponse";
 import { getTokenService } from "./TokenService/TokenService";
 import { getUserService, User } from "./UserService/UserService";
 
 export class AuthService {
-  async signUp(password: string, login: string): Promise<UserAuthResponse> {
+  async signUp(password: string, login: string): Promise<any> {
     const userService = await getUserService();
     const candidate = await userService.getUser(login);
     if (candidate)
       throw ApiError.BadRequest(getApiErrorMessage("User already exists"));
-    const newUser = (await userService.createUser({
+    const newUser = await userService.createUser({
       login,
       password,
-    })) as User;
-    const tokenService = await getTokenService();
-    const tokens = tokenService.generateTokenPair(newUser);
-    await tokenService.saveToken(newUser.login, tokens.refreshToken);
-    return { ...tokens, user: newUser };
+    });
+    return newUser;
   }
 
   async login(password: string, login: string): Promise<UserAuthResponse> {
@@ -36,22 +33,28 @@ export class AuthService {
     return { ...tokens, user: candidate };
   }
 
-  async logout(refreshToken: string) {
+  async logout(accessToken: string) {
     const tokenService = await getTokenService();
-    return await tokenService.removeToken(refreshToken);
+    const userData = (await tokenService.validateToken(
+      accessToken,
+      getTokensKeyPair().accessTokenKey
+    )) as User;
+    const refreshToken = await tokenService.getTokenByKey(userData.login);
+    await tokenService.removeToken(String(refreshToken));
   }
 
   async refreshToken(refreshToken: string): Promise<UserAuthResponse> {
-    const userService = await getUserService();
     if (!refreshToken) throw ApiError.Unauthorised();
+    const userService = await getUserService();
     const tokenService = await getTokenService();
+
+    const isTokenExist = await tokenService.checkTokenExist(refreshToken);
+    if (!isTokenExist) throw ApiError.Unauthorised();
     const tokenData = tokenService.validateToken(
       refreshToken,
-      config.refreshTokenKey
+      getTokensKeyPair().refreshTokenKey
     ) as { login: string };
-    const isTokenExist = await tokenService.checkTokenExist(refreshToken);
-    if (!tokenData || !isTokenExist) throw ApiError.Unauthorised();
-    const user = (await userService.getUser(tokenData.login)) as User;
+    const user = await userService.getUser(tokenData.login);
     if (!user) throw ApiError.Unauthorised();
     const tokens = tokenService.generateTokenPair(user);
     await tokenService.saveToken(user.login, tokens.refreshToken);

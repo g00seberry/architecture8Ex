@@ -39,7 +39,7 @@ export class TokenService {
 
   async removeToken(token: string) {
     const key = await this.tokenStorage.findByValue(token);
-    return await this.tokenStorage.delete(String(key));
+    return this.tokenStorage.delete(String(key));
   }
 
   async getTokenByKey(key: string) {

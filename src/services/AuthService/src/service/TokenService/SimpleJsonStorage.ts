@@ -13,8 +13,6 @@ export class SimpleJsonStorage implements ITokenStorage {
   async delete(key: string): Promise<void> {
     if (this.data.hasOwnProperty(key)) {
       delete this.data[key];
-    } else {
-      console.log(`Key '${key}' not found.`);
     }
   }
 
@@ -22,13 +20,11 @@ export class SimpleJsonStorage implements ITokenStorage {
     const { key, content } = params;
     if (this.data.hasOwnProperty(key)) {
       this.data[key] = content;
-    } else {
-      console.log(`Key '${key}' not found.`);
     }
   }
 
   async findByKey(key: string): Promise<string | null> {
-    return this.data[key];
+    return this.data[key] ?? null;
   }
 
   async findByValue(value: any): Promise<string | null> {

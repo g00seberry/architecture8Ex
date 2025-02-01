@@ -7,9 +7,17 @@ export const runGame = async (id: string) => {
   return res;
 };
 
+export const signUpInGame = async (data: GameAuthInfo) => {
+  const res = await axios.post<AuthData>(
+    `http://localhost:3000/game/${data.gId}/sign-up`,
+    data
+  );
+  return res.data;
+};
+
 export const authInGame = async (data: GameAuthInfo) => {
   const res = await axios.post<AuthData>(
-    `http://localhost:3000/game/${data.gId}/auth`,
+    `http://localhost:3000/game/${data.gId}/login`,
     data
   );
   return res.data;

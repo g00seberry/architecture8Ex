@@ -2,7 +2,7 @@ export const config = {
   refreshTokenKey: "refresh-token-key",
   refreshTokenExpiresIn: "7d",
   accessTokenKey: "access-token-key",
-  accessTokenExpiresIn: "3h",
+  accessTokenExpiresIn: "10s",
   clientUrl: "http://localhost:8080",
   apiUrl: "http://localhost:4020",
 };
