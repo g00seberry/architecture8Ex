@@ -1,6 +1,6 @@
 import { ApiError } from "../ApiError/ApiError";
 import { getApiErrorMessage } from "../ApiError/getApiErrorMessage";
-import { compareHash, hashString } from "../common/hashString";
+import { compareHash } from "../common/hashString";
 import { config } from "../config";
 import { UserAuthResponse } from "../types/UserAuthResponse";
 import { getTokenService } from "./TokenService/TokenService";
@@ -13,7 +13,7 @@ export class AuthService {
     if (candidate)
       throw ApiError.BadRequest(getApiErrorMessage("User already exists"));
     const newUser = (await userService.createUser({
-      login: login,
+      login,
       password,
     })) as User;
     const tokenService = await getTokenService();
@@ -27,10 +27,7 @@ export class AuthService {
     const candidate = (await userService.getUser(login)) as User;
     if (!candidate)
       throw ApiError.BadRequest(getApiErrorMessage("User is not found"));
-    const isPassEquals = await compareHash(
-      hashString(password),
-      candidate.password
-    );
+    const isPassEquals = await compareHash(password, candidate.password);
     if (!isPassEquals)
       throw ApiError.BadRequest(getApiErrorMessage("Wrong login or password"));
     const tokenService = await getTokenService();

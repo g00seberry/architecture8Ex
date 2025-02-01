@@ -3,7 +3,7 @@ import { TokenPair, TokenPayload } from "../../types/TokenPair";
 import { createToken } from "../../common/token/createToken";
 import { verifyToken } from "../../common/token/verifyToken";
 import { ITokenStorage } from "./ITokenStorage";
-import { SimpleJsonStorage } from "./storage/SimpleJsonStorage";
+import { SimpleJsonStorage } from "./SimpleJsonStorage";
 
 export class TokenService {
   constructor(readonly tokenStorage: ITokenStorage) {}
@@ -61,7 +61,6 @@ let service: TokenService | null = null;
 
 export const getTokenService = async () => {
   if (!service) {
-    await storage.init();
     service = new TokenService(storage);
   }
   return service;

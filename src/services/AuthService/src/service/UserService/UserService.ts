@@ -1,6 +1,6 @@
 import { hashString } from "../../common/hashString";
 import { IUserStorage } from "./IUserStorage";
-import { SimpleJsonUserStorage } from "./storage/SimpleJsonUserStorage";
+import { SimpleJsonUserStorage } from "./SimpleJsonUserStorage";
 
 export type User = { login: string; password: string };
 
@@ -35,7 +35,6 @@ let service: UserService | null = null;
 
 export const getUserService = async () => {
   if (!service) {
-    await storage.init();
     service = new UserService(storage);
   }
   return service;
