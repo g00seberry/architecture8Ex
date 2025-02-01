@@ -6,6 +6,7 @@ import { GameEntity } from "../../../gameCore/Entity";
 import { CommandLog, SimpleLogger } from "../../../gameCore/commands";
 import { CommandBurnFuel } from "../commands/CommandBurnFuel";
 import { CommandMoveLinear } from "../commands/CommandMoveLinear";
+import { CommandCreateBattle } from "../commands/CommandCreateBattle";
 
 class AdapteeDataWithEntityId {
   constructor(readonly data: unknown) {}
@@ -35,6 +36,8 @@ const cmdsReg = {
     if (!e) return undefined;
     return new CommandMoveLinear().moveLinear(e);
   },
+
+  [CommandCreateBattle.name]: (data: unknown) => new CommandCreateBattle(data),
 };
 
 export class StrategyInterpretCmd implements IStrategy<ICommand | undefined> {

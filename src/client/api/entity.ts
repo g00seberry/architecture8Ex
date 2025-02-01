@@ -24,5 +24,3 @@ export const entityMove = (eId: string, gId: string) => {
     )
   );
 };
-
-export const getAllEntities = () => {};

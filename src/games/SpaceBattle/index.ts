@@ -1,4 +1,4 @@
-import { parentPort, workerData } from "node:worker_threads";
+import { parentPort } from "node:worker_threads";
 import {
   bootIoC4GameCore,
   IoCResolveGameCore,
@@ -8,17 +8,12 @@ import { IoCDependencyContainer } from "../../IoC/IoCDependencyContainer";
 import { IoCResolveStrategyStd } from "../../IoC/IoCResolveStrategyStd";
 import { IoCScopeTreeContainer } from "../../IoC/IoCScopeTreeContainer";
 import { ICommand } from "../../common/ICommand";
+import { postBack } from "./postBack";
 
 new CommandIoCBootstrap(
   new IoCScopeTreeContainer(new IoCDependencyContainer(), "root"),
   new IoCResolveStrategyStd()
 ).execute();
-
-let { threadId } = workerData;
-
-const postBack = (data: unknown) => {
-  parentPort.postMessage(data);
-};
 
 bootIoC4GameCore();
 
