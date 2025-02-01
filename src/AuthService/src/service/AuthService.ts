@@ -1,7 +1,7 @@
 import { ApiError } from "../ApiError/ApiError";
 import { getApiErrorMessage } from "../ApiError/getApiErrorMessage";
 import { compareHash } from "../common/hashString";
-import { config, getTokensKeyPair } from "../config";
+import { getTokensKeyPair } from "../config";
 import { UserAuthResponse } from "../types/UserAuthResponse";
 import { getTokenService } from "./TokenService/TokenService";
 import { getUserService, User } from "./UserService/UserService";
