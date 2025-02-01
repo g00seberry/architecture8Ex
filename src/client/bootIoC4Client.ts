@@ -8,7 +8,7 @@ import { entityMove } from "./api/entity";
 import { runGame, sendMessage2Game } from "./api/game";
 import { GameAuthInfo } from "./api/types";
 import { CommandAuthInGame } from "./commands/CommandAuthInGame";
-import { CommandSignUpInGame } from "./commands/CommandsignUpInGame";
+import { CommandSignUpInGame } from "./commands/CommandSignUpInGame";
 import { createConnectionWithServer } from "./createConnectionWithServer";
 
 export const IoCResolveClient = <T>(
@@ -29,10 +29,6 @@ export const bootIoC4Client = () => {
     new CommandAuthInGame(data).execute()
   );
 
-  IoCResolveClient("register")("game.auth", (data: GameAuthInfo) =>
-    new CommandAuthInGame(data).execute()
-  );
-
   IoCResolveClient("register")("connection.init", () =>
     createConnectionWithServer()
   );
@@ -46,5 +42,12 @@ export const bootIoC4Client = () => {
 
   IoCResolveClient("register")("api.entity.move", (eId: string, gId: string) =>
     entityMove(eId, gId)
+  );
+
+  IoCResolveClient("register")("game.battle.create", () =>
+    IoCResolveClient("game.message")("SpaceBattle", {
+      data: { eId: "SpaceBattle", cmdName: "CmdCreateBattle" },
+      type: "std",
+    } as GameMessage)
   );
 };

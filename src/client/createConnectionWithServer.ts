@@ -34,6 +34,9 @@ class StrategyCreateNewConnection implements IStrategy<Promise<IConnection>> {
         console.log(`socket opened on ${this.url}`);
         res(new ConnectionStd(this.socket));
       });
+      this.socket.on("message", (data) => {
+        console.log(data);
+      });
     });
   }
 }

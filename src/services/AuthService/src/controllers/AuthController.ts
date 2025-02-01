@@ -40,7 +40,6 @@ export class AuthController {
       if (!accessToken) throw ApiError.BadRequest("incorrect data");
       await authService.logout(accessToken);
       res.clearCookie("accessToken");
-      console.log(1);
       return res.status(200).json(true);
     } catch (error) {
       next(error);
@@ -78,7 +77,7 @@ export class AuthController {
         accessToken,
         getTokensKeyPair().accessTokenKey
       );
-      return res.status(200).json(valid);
+      return res.status(200).json(!!valid ? true : false);
     } catch (error) {
       next(error);
     }

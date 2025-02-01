@@ -5,6 +5,7 @@ import { getThreadContainer } from "../ThreadContainer";
 import { IoCResolveServer } from "../bootIoC4Server";
 import { IContainer } from "../../IoC/types";
 import { GameInfo } from "../games/GamesRepo";
+import { CommandServerConnectionSend } from "./CommandServerConnectionSend";
 
 export class CommandRunNewGame implements ICommand {
   constructor(readonly gameId: string) {}
@@ -27,9 +28,12 @@ export class CommandRunNewGame implements ICommand {
           const threadReg = getThreadContainer();
           threadReg.add(this.gameId, this.worker);
           this.worker.addListener("message", (msg) => {
-            console.log(msg);
             // управляющее сообщение, что поток запущен
-            if (msg === "inited") res(true);
+            if (msg === "inited") {
+              res(true);
+              return;
+            }
+            new CommandServerConnectionSend(msg).execute();
           });
         }
       } catch (error) {
