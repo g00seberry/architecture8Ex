@@ -1,4 +1,4 @@
-import { GameInfo, runGame } from "./api/game";
+import { GameInfo } from "./api/types";
 
 class Game {
   constructor(readonly info: GameInfo) {}

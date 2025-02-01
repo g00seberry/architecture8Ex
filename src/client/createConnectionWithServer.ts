@@ -1,8 +1,8 @@
+import { ClientRequestArgs } from "http";
 import { WebSocket } from "ws";
 import { IStrategy } from "../common/IStrategy";
+import { getAccessToken } from "./commands/CommandAuthInGame";
 import { IConnection } from "./IConnection";
-import { ClientRequestArgs } from "http";
-import { AuthData } from "./doLogin";
 
 class ConnectionStd implements IConnection {
   constructor(readonly socket: WebSocket) {}
@@ -40,13 +40,11 @@ class StrategyCreateNewConnection implements IStrategy<Promise<IConnection>> {
 
 let conn: IConnection | null = null;
 
-export const createConnectionWithServer = async (
-  authData: AuthData
-): Promise<IConnection> => {
+export const createConnectionWithServer = async (): Promise<IConnection> => {
   if (!conn)
     conn = await new StrategyCreateNewConnection()
       .bind("ws://localhost:8080", {
-        headers: { "x-client-token": authData.accessToken },
+        headers: { "x-client-token": getAccessToken() },
       })
       .execute();
   return conn;

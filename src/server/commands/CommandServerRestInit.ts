@@ -7,6 +7,15 @@ export class CommandServerRestInit implements ICommand {
     const app = express();
     app.use(express.json());
     const port = process.env.PORT || 3000;
+    app.post("/game/:id/auth", async (req: Request, res: Response) => {
+      try {
+        const { gId, login, pass } = req.body;
+        console.log(gId, login, pass);
+        res.json(true);
+      } catch (error) {
+        res.status(500).json(error);
+      }
+    });
     app.post("/game/:id/run", async (req: Request, res: Response) => {
       try {
         const gId = req.params.id;

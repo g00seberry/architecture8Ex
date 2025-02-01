@@ -6,9 +6,9 @@ import { IoCDependencyFn } from "../IoC/types";
 import { GameMessage } from "../types";
 import { entityMove } from "./api/entity";
 import { runGame, sendMessage2Game } from "./api/game";
-import { getApp } from "./App";
+import { GameAuthInfo } from "./api/types";
+import { CommandAuthInGame } from "./commands/CommandAuthInGame";
 import { createConnectionWithServer } from "./createConnectionWithServer";
-import { AuthData } from "./doLogin";
 
 export const IoCResolveClient = <T>(
   dependencyName: string
@@ -20,16 +20,16 @@ export const bootIoC4Client = () => {
     new IoCResolveStrategyStd()
   ).execute();
 
-  IoCResolveClient("register")("app.init", () => {
-    const app = getApp();
-    return app.login();
-  });
+  IoCResolveClient("register")("game.auth", (data: GameAuthInfo) =>
+    new CommandAuthInGame(data).execute()
+  );
 
-  IoCResolveClient("register")("connection.init", (data: AuthData) =>
-    createConnectionWithServer(data)
+  IoCResolveClient("register")("connection.init", () =>
+    createConnectionWithServer()
   );
 
   IoCResolveClient("register")("game.run", (id: string) => runGame(id));
+
   IoCResolveClient("register")(
     "game.message",
     (id: string, data: GameMessage) => sendMessage2Game(id, data)
